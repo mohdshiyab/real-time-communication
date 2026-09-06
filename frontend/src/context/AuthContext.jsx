@@ -37,6 +37,9 @@ export const AuthProvider = ({ children }) => {
         method: "POST",
         body: JSON.stringify(formData),
       });
+      if (data.token) {
+        localStorage.setItem("chat_token", data.token);
+      }
       setAuthUser(data);
       return { success: true };
     } catch (error) {
@@ -53,6 +56,9 @@ export const AuthProvider = ({ children }) => {
         method: "POST",
         body: JSON.stringify(formData),
       });
+      if (data.token) {
+        localStorage.setItem("chat_token", data.token);
+      }
       setAuthUser(data);
       return { success: true };
     } catch (error) {
@@ -65,13 +71,15 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await apiFetch("/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      localStorage.removeItem("chat_token");
       setAuthUser(null);
       if (socket) {
         socket.disconnect();
         setSocket(null);
       }
-    } catch (error) {
-      console.error("Logout error:", error);
     }
   };
 
@@ -81,6 +89,9 @@ export const AuthProvider = ({ children }) => {
       const newSocket = io(SOCKET_URL, {
         query: {
           userId: authUser._id,
+        },
+        auth: {
+          token: localStorage.getItem("chat_token"),
         },
       });
 

@@ -3,11 +3,18 @@ const BASE_URL = `${SERVER_ORIGIN.replace(/\/+$/, "")}/api`;
 
 export async function apiFetch(endpoint, options = {}) {
   const url = `${BASE_URL}${endpoint}`;
+  const token = localStorage.getItem("chat_token");
+  const headers = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const config = {
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    headers,
     credentials: "include", // Essential for httpOnly cookies
     ...options,
   };
